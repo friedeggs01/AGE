@@ -34,10 +34,11 @@ public:
     double proximity;
     double diversity;
     double value;
-    int rank = 1;
+    int rank;
     Individual() {
         this->dim = N;
         this->num_objectives = OBJ_CNT;
+        this->rank = 1;
     }
 
     Individual(const Individual &p) {
@@ -47,6 +48,11 @@ public:
             this->x[i] = p.x[i];
         for (int i=0; i<num_objectives; i++)
             this->fitness[i] = p.fitness[i];
+        this->score = p.score;
+        this->proximity = p.proximity;
+        this->diversity = p.diversity;
+        this->value = p.value;
+        this->rank = p.rank;
     }
 
     void random_init() {
@@ -72,7 +78,7 @@ public:
         fitness[1] = f2();
     }
 
-    bool dominate(Individual& other) {
+    bool dominate(Individual& other) { // for find min problem
         bool superior = false;
         for (int i=0; i<num_objectives; i++)
             if (this->fitness[i] > other.fitness[i])
@@ -221,11 +227,11 @@ public:
         }
     }
 
-    // Sinh sản = lai ghép + đột biến
+    // Offspring
     void reproduction(int count) {
         vector<Individual> offspring;
 
-        // lai ghép
+        // crossover
         while (offspring.size() < count) {
             int i1 = rand() % POP_SIZE;
             int i2 = rand() % POP_SIZE;
@@ -246,13 +252,14 @@ public:
         while (offspring.size() > count)
             offspring.pop_back();
 
-        // đột biến
+        // mutation
         for (Individual &indiv: offspring)
             if (random() < MUTATION_RATE)
                 indiv.mutate();
 
         population.insert(population.end(), offspring.begin(), offspring.end());
     }
+
     void sortIndividualsIntoRanks() {
         const int populationSize = population.size();
 
@@ -275,6 +282,7 @@ public:
             }
         }
     }
+
     void get_geometry(){
         double sum1 = 10, sum2 = 1;
         while (log(sum1) / sum2 > 0.001) {
@@ -284,7 +292,7 @@ public:
                 sum1 += pow(population[2].fitness[i], L_p);
                 sum2 += pow(population[2].fitness[i], L_p) * log10f(population[2].fitness[i]);
             }
-            L_p = L_p + log(sum1) / sum2;
+            L_p = L_p + log10f(sum1) / sum2;
         }
     }
     // Chọn lọc theo AGE
@@ -296,31 +304,31 @@ public:
 int main() {
     srand ( time(NULL) );
 
-    /*=== Thuật toán NSGA-II ===*/
-    // Khởi tạo quần thể
+    /*=== Thuật toán AGE-MOEA ===*/
+    // Initialize population
     Population pop;
     pop.init();
     cout << "Generation 0" << endl;
 
-    // vòng lặp tiến hóa
+    // Loops
     for (int t=1; t<=MAX_GENERATION; t++) {
-        // sinh sản
+        // Create offspring
         pop.reproduction(POP_SIZE);
 
-        // đánh giá cá thể
+        // Evaluate individual
         for (Individual &indiv: pop.population)
             indiv.evaluate();
 
         pop.get_geometry();
+
         pop.sortIndividualsIntoRanks();
-        // chọn lọc 
+    
         pop.selection(POP_SIZE);
 
-        // in kết quả mỗi thế hệ
+        // Print solution each generation
         cout << "Generation " << t << endl;
     }
 
-    /*=== In kết quả cuối ===*/
     cout << "===========" << endl;
     cout << "FINAL RESULT:" << endl;
     for (Individual p: pop.population)
