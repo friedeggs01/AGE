@@ -6,7 +6,7 @@ using namespace std;
 #define N 10
 #define ETA 5
 #define POP_SIZE 100
-#define MAX_GENERATION 500
+#define MAX_GENERATION 50
 #define CROSSOVER_RATE 0.9
 #define MUTATION_RATE 0.1
 
@@ -20,6 +20,17 @@ double count_p_norm(double x[], double L_p) {
         sum += pow(x[i], L_p);
     }
     return 1 / pow(sum, 1/L_p);
+}
+double distanceCalculate(double x1, double y1, double x2, double y2)
+{
+	double x = x1 - x2; //calculating number to square in next step
+	double y = y1 - y2;
+	double dist;
+
+	dist = pow(x, 2) + pow(y, 2);       //calculating Euclidean distance
+	dist = sqrt(dist);                  
+
+	return dist;
 }
 
 // Class biểu diễn một cá thể
@@ -123,6 +134,11 @@ public:
             x[i] += sigma;
         }
     }
+    
+    bool operator==(const Individual& other) const {
+        // Compare the necessary member variables for equality
+        return this == &other;
+    }
 };
 
 class AGESelection {
@@ -132,7 +148,7 @@ public:
             if (indiv.dominate(p))
                 return true;
     }
-    bool compareByScore(const Individual& ind1, const Individual& ind2) {
+    static bool compareByScore(const Individual& ind1, const Individual& ind2) {
         return ind1.score > ind2.score;
     }
     
@@ -179,8 +195,9 @@ public:
                 }
             }
             Extra.insert(Extra.end(), extreme_point.begin(), extreme_point.end());
-            Unxtra.erase(remove(Unxtra.begin(), Unxtra.end(), extreme_point), Unxtra.end());
-
+            for (const Individual& point : extreme_point) {
+                Unxtra.erase(std::remove(Unxtra.begin(), Unxtra.end(), point), Unxtra.end());
+            }
             for (Individual p: Unxtra) {
                 p.proximity = count_p_norm(p.fitness, L_p);
             }
@@ -342,6 +359,16 @@ int main() {
 
     cout << "===========" << endl;
     cout << "FINAL RESULT:" << endl;
-    for (Individual p: pop.population)
-        cout << p.fitness[0] << " " << p.fitness[1] << endl;
+    pop.sortIndividualsIntoRanks();
+    double igd = 0;
+    int number_points = 0;
+    for (Individual p: pop.population) {
+        if (p.rank == 1) {
+            cout << p.fitness[0] << " " << p.fitness[1] << endl;
+            number_points++;
+            igd += distanceCalculate(p.fitness[0], p.fitness[1], );
+        }
+    }
+
+    cout << "IGD:   " << (igd/number_points) << endl;
 }
