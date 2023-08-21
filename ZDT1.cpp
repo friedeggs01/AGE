@@ -194,12 +194,23 @@ public:
                     p.diversity = *min_element(diver, diver + F_d.size());
                     p.value = p.diversity / p.proximity;
                 }
-                Individual Smax = *max_element(Unxtra.begin(), Unxtra.end(),
-                                               [](const Individual& ind1, const Individual& ind2) 
-                                                  {return ind1.value < ind2.value;});
-                Smax.score = Smax.value;
-                Extra.push_back(Smax);
-                Unxtra.erase(remove(Unxtra.begin(), Unxtra.end(), Smax), Unxtra.end());
+                // Find the iterator pointing to Smax in Unxtra
+                auto it = max_element(Unxtra.begin(), Unxtra.end(), [](const Individual& ind1, const Individual& ind2) {
+                    return ind1.value < ind2.value;
+                });
+                if (it != Unxtra.end()) {
+                    // Get the pointer to the maximum element
+                    Individual* Smax = &(*it);
+
+                    // Set the score of Smax to its value
+                    (*Smax).score = (*Smax).value;
+
+                    // Add Smax to Extra
+                    Extra.push_back(*Smax);
+
+                    // Erase Smax from Unxtra
+                    Unxtra.erase(it);
+                } 
             }
         } else {
             for (Individual p: F_d) {
