@@ -5,8 +5,8 @@ using namespace std;
 #define OBJ_CNT 2
 #define N 10
 #define ETA 5
-#define POP_SIZE 100
-#define MAX_GENERATION 50
+#define POP_SIZE 200
+#define MAX_GENERATION 100
 #define CROSSOVER_RATE 0.9
 #define MUTATION_RATE 0.1
 
@@ -32,6 +32,22 @@ double distanceCalculate(double x1, double y1, double x2, double y2)
 
 	return dist;
 }
+double distancePointToCurve(double x, double y) {
+    double point[POP_SIZE][2];
+    for (int i = 0; i < POP_SIZE; i++) {
+        point[i][0] = i/POP_SIZE;
+        point[i][1] = 1 - sqrt(point[i][0]);
+    }
+    double distance = INF;
+    for (int i = 0; i < POP_SIZE; i++){
+        int dist = distanceCalculate(point[i][0], point[i][1], x, y);
+        if (dist < distance) {
+            distance = dist;
+        }
+    }
+    return distance;
+}
+
 
 // Class biểu diễn một cá thể
 class Individual {
@@ -337,7 +353,16 @@ int main() {
     Population pop;
     pop.init();
     cout << "Generation 0" << endl;
-
+    double ig = 0;
+    for (Individual p: pop.population) {
+        if (p.rank == 1) {
+            cout << p.fitness[0] << " " << p.fitness[1] << endl;
+            ig += distancePointToCurve(p.fitness[0], p.fitness[1]);
+            cout << ig << endl;
+        }
+    }
+    // ig mean distance from first front to 1 - sqrt(x)
+    cout << "IGD:   " << (ig/POP_SIZE) << endl;
     // Loops
     for (int t=1; t<=MAX_GENERATION; t++) {
         // Create offspring
@@ -366,9 +391,9 @@ int main() {
         if (p.rank == 1) {
             cout << p.fitness[0] << " " << p.fitness[1] << endl;
             number_points++;
-            igd += distanceCalculate(p.fitness[0], p.fitness[1], );
+            igd += distancePointToCurve(p.fitness[0], p.fitness[1]);
         }
     }
-
+    // igd mean distance from first front to 1 - sqrt(x)
     cout << "IGD:   " << (igd/number_points) << endl;
 }
