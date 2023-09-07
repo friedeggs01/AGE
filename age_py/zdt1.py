@@ -18,17 +18,18 @@ problem = Problem(num_of_variables=30, objectives=[f1, f2], variables_range =[(0
 evo = Evolution(problem, num_of_generations=50, mutation_param=20)
 func = [i.objectives for i in evo.evolve()]
 
-function1 = [i[0] for i in func]
-function2 = [i[1] for i in func]
+# function1 = [i[0] for i in func]
+# function2 = [i[1] for i in func]
 
-plt.xlabel('Function 1', fontsize=15)
-plt.ylabel('Function 2', fontsize=15)
-plt.scatter(function1, function2)
-plt.show()
+# plt.xlabel('Function 1', fontsize=15)
+# plt.ylabel('Function 2', fontsize=15)
+# plt.scatter(function1, function2)
+# plt.show()
 
 import numpy as np
 from pymoo.problems import get_problem
 from pymoo.visualization.scatter import Scatter
+from pymoo.indicators.gd import GD
 
 # The pareto front of a scaled zdt1 problem
 pf = get_problem("zdt1").pareto_front()
@@ -38,8 +39,5 @@ pf = get_problem("zdt1").pareto_front()
 B = np.array(func)
 # plot the result
 Scatter(legend=True).add(pf, label="Pareto-front").add(B, label="Result").show()
-
-from pymoo.indicators.gd import GD
-
 ind = GD(pf)
 print("GD", ind(B))

@@ -261,13 +261,14 @@ public:
 class Population {
 public:
     vector<Individual> population;
-    double L_p = 1;
+    double L_p;
     void init() {
         for (int i=0; i<POP_SIZE; i++) {
             Individual p;
             p.random_init();
             p.evaluate();
             population.push_back(p);
+            L_p = 1;
         }
     }
 
@@ -371,9 +372,9 @@ int main() {
         // Evaluate individual
         for (Individual &indiv: pop.population)
             indiv.evaluate();
-
+        printf("\nL_ before: ", pop.L_p);
         pop.get_geometry();
-
+        printf("\nL_ after: ", pop.L_p);
         pop.sortIndividualsIntoRanks();
     
         pop.selection(POP_SIZE);

@@ -23,18 +23,48 @@ class Population:
         self.population.append(new_individual)
     
     def get_geometry(self):
-        # sum1 = 100
-        # sum2 = 1
-        # while(math.log10(sum1) / sum2 > 0.001):
-        #     sum1 = 0
-        #     sum2 = 0
-        #     for i in range(len(self.population[0].objectives)):
-        #         sum1 += pow(self.fronts[0][2].objectives[i], self.L_p)
-        #         sum2 += pow(self.fronts[0][2].objectives[i], self.L_p) * math.log(self.fronts[0][2].objectives[i])
-        #     self.L_p = self.L_p + (math.log(sum1) / sum2)
-        #     print("L_p in while: ", self.L_p)
-        self.L_p = 0.5
-
+        sum1 = 100
+        sum2 = 1
+        while((math.log10(sum1) / sum2) > 0.001):
+            # sum1 = 0
+            # sum2 = 0
+            # for i in range(len(self.population[0].objectives)):
+            #     sum1 += pow(self.fronts[0][2].objectives[i], self.L_p)
+            #     sum2 += pow(self.fronts[0][2].objectives[i], self.L_p) * math.log(self.fronts[0][2].objectives[i])
+            # self.L_p = self.L_p + (math.log(sum1) / sum2)
+            self.L_p = 1
+            past_value = self.L_p
+            for i in range(0, 100):
+                f = 0.0
+                for obj_index in range (len(self.population[0].objectives)):
+                    if self.fronts[0][2].objectives[obj_index] > 0:
+                        f += np.power(self.fronts[0][2].objectives[obj_index], self.L_p)
+                f = np.log(f)
+                
+                numerator = 0
+                denominator = 0
+                for obj_index in range (len(self.population[0].objectives)):
+                   if self.fronts[0][2].objectives[obj_index] > 0:
+                        numerator += np.power(self.fronts[0][2].objectives[obj_index], self.L_p) * np.log(self.fronts[0][2].objectives[obj_index]) 
+                        denominator += np.power(self.fronts[0][2].objectives[obj_index], self.L_p)
+                
+                if denominator == 0:
+                    return 1
+                
+                ff = numerator / denominator
+                
+                self.L_p = self.L_p - f / ff
+                
+                if abs(self.L_p - past_value) < 0.001:
+                    break
+                else:
+                    past_value = self.L_p
+                
+                if isinstance(self.L_p, complex):
+                    return 1
+                else: 
+                    return self.L_p    
+                        
     def count_survival_score(self, d):
         if (d == 0):
             Extra = []

@@ -131,18 +131,10 @@ class AGEUtils:
         participants = random.sample(population.population, self.num_of_tour_particips)
         best = None
         for participant in participants:
-            if best is None: 
-            # or (
-            #         # self.crowding_operator(participant, best) == 1 and 
-            #         self.__choose_with_prob(self.tournament_prob)):
+            if best is None or (participant.dominates(best)):
                 best = participant
 
         return best
-
-    def __choose_with_prob(self, prob):
-        if random.random() <= prob:
-            return True
-        return False
           
     def AGESelection(self, population):
         new_population = Population()
