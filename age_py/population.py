@@ -26,12 +26,6 @@ class Population:
         sum1 = 100
         sum2 = 1
         while((math.log10(sum1) / sum2) > 0.001):
-            # sum1 = 0
-            # sum2 = 0
-            # for i in range(len(self.population[0].objectives)):
-            #     sum1 += pow(self.fronts[0][2].objectives[i], self.L_p)
-            #     sum2 += pow(self.fronts[0][2].objectives[i], self.L_p) * math.log(self.fronts[0][2].objectives[i])
-            # self.L_p = self.L_p + (math.log(sum1) / sum2)
             self.L_p = 1
             past_value = self.L_p
             for i in range(0, 100):
@@ -55,7 +49,7 @@ class Population:
                 
                 self.L_p = self.L_p - f / ff
                 
-                if abs(self.L_p - past_value) < 0.001:
+                if abs(self.L_p - past_value) < 0.0001:
                     break
                 else:
                     past_value = self.L_p
